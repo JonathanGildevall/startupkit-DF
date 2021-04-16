@@ -1,13 +1,6 @@
 
 #Change this base image acccording to your convenience
-# for tensorflow  v1.X
-FROM nvcr.io/nvidia/tensorflow:20.09-tf1-py3
-
-#for tensorflow v2.X
-#FROM nvcr.io/nvidia/tensorflow:20.09-tf2-py3
-
-#for pytorch 
-#FROM nvcr.io/nvidia/pytorch:20.09-py3
+FROM nvcr.io/nvidia/pytorch:21.02-py3
 
 ARG u_id
 ARG g_id
@@ -50,22 +43,91 @@ USER ${username}
 RUN chown -R ${u_id}:${g_id} /home/${username}
 RUN chmod -R  755 /home/${username}
 
+# CMake version 3.18.3
+RUN apt-get update -y && \
+    DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+        make \
+        wget && \
+    rm -rf /var/lib/apt/lists/*
+RUN mkdir -p /var/tmp && wget -q -nc --no-check-certificate -P /var/tmp https://cmake.org/files/v3.18/cmake-3.18.3-Linux-x86_64.sh && \
+    mkdir -p /usr/local && \
+    /bin/sh /var/tmp/cmake-3.18.3-Linux-x86_64.sh --prefix=/usr/local --skip-license && \
+    rm -rf /var/tmp/cmake-3.18.3-Linux-x86_64.sh
+ENV PATH=/usr/local/bin:$PATH
+
+# MKL version 2020.0-088
+RUN apt-get update -y && \
+    DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+        apt-transport-https \
+        ca-certificates \
+        gnupg \
+        wget && \
+    rm -rf /var/lib/apt/lists/*
+RUN wget -qO - https://apt.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS-2019.PUB | apt-key add - && \
+    echo "deb https://apt.repos.intel.com/mkl all main" >> /etc/apt/sources.list.d/hpccm.list && \
+    apt-get update -y && \
+    DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+        intel-mkl-64bit-2020.0-088 && \
+    rm -rf /var/lib/apt/lists/*
+RUN echo "source /opt/intel/mkl/bin/mklvars.sh intel64" >> /etc/bash.bashrc
+
+RUN apt-get update -y && \
+    DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+        ca-certificates \
+        git \
+        libboost-program-options-dev \
+        libboost-stacktrace-dev \
+        libboost-system-dev \
+        libboost-test-dev \
+        libboost-thread-dev \
+        libbz2-dev \
+        libfftw3-dev \
+        liblzma-dev \
+        libsndfile1 \
+        nano \
+        pkg-config \
+        python3-dev \
+        zlib1g-dev && \
+    rm -rf /var/lib/apt/lists/*
+
+RUN cd /opt && \
+    git clone --depth=1 https://github.com/kpu/kenlm.git && \
+    cd kenlm && \
+    mkdir -p build && \
+    cd build && \
+    cmake .. && \
+    make -j 4
+
+ENV KENLM_ROOT=/opt/kenlm
+
+# https://github.com/facebookresearch/flashlight.git
+RUN mkdir -p /var/tmp && cd /var/tmp && git clone --depth=1 https://github.com/facebookresearch/flashlight.git flashlight && cd - && \
+    cd /var/tmp/flashlight && \
+    cd bindings/python && \
+    python3 setup.py install && \
+    rm -rf /var/tmp/flashlight
+
+# pip
+RUN apt-get update -y && \
+    DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+        python3-pip \
+        python3-setuptools \
+        python3-wheel && \
+    rm -rf /var/lib/apt/lists/*
+RUN pip3 --no-cache-dir install soundfile wandb
+
+RUN cd /home/${username} && \
+    git clone --depth=1 https://github.com/pytorch/fairseq.git && \
+    cd fairseq && \
+    pip3 install --editable ./ --no-cache-dir
+
+RUN pip3 uninstall numpy -y && \
+    pip3 install numpy
+
+RUN rm -rf /workspace
 
 
-# Add these commands if you work with conda
-# If conda is selected, previous python/pip commands should be removed
 
-# ENV SHELL=/bin/bash
-# RUN wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh
-# RUN bash Miniconda3-latest-Linux-x86_64.sh -b
-# RUN rm -f Miniconda3-latest-Linux-x86_64.sh
-# ENV PATH="/home/${username}/miniconda3/bin:${PATH}"
-# ARG PATH="/home/${username}/miniconda3/bin:${PATH}"
-# RUN conda init bash
-
-# RUN conda create -n env  -y
-# SHELL ["conda", "run", "-n", "env", "/bin/bash", "-c"]
-# RUN conda install -n env -c pytorch pytorch=1.8.0 
 
 WORKDIR /home/${username}
 
