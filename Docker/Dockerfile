@@ -52,8 +52,6 @@ RUN pip3 install --no-cache-dir -r /tmp/requirements.txt
 RUN apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
-RUN mkdir -p /home/${username}
-
 # CMake version 3.18.3
 RUN mkdir -p /var/tmp && wget -q -nc --no-check-certificate -P /var/tmp https://cmake.org/files/v3.18/cmake-3.18.3-Linux-x86_64.sh && \
     mkdir -p /usr/local && \
