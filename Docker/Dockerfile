@@ -42,7 +42,7 @@ RUN set -x && \
         nano \
         pkg-config \
         python3-dev \
-        zlib1g-dev \
+        zlib1g-dev
 
 RUN pip3 uninstall numpy -y
  
