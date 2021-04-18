@@ -52,13 +52,6 @@ RUN pip3 install --no-cache-dir -r /tmp/requirements.txt
 RUN apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
-
-RUN groupadd --gid ${g_id} ${username}
-RUN useradd --uid ${u_id} --gid ${g_id} --shell /bin/bash --create-home ${username}
-USER ${username}
-RUN chown -R ${u_id}:${g_id} /home/${username}
-RUN chmod -R  755 /home/${username}
-
 # CMake version 3.18.3
 RUN mkdir -p /var/tmp && wget -q -nc --no-check-certificate -P /var/tmp https://cmake.org/files/v3.18/cmake-3.18.3-Linux-x86_64.sh && \
     mkdir -p /usr/local && \
@@ -98,6 +91,12 @@ RUN cd /home/${username} && \
     pip3 install --editable ./ --no-cache-dir
 
 RUN rm -rf /workspace
+
+RUN groupadd --gid ${g_id} ${username}
+RUN useradd --uid ${u_id} --gid ${g_id} --shell /bin/bash --create-home ${username}
+USER ${username}
+RUN chown -R ${u_id}:${g_id} /home/${username}
+RUN chmod -R  755 /home/${username}
 
 WORKDIR /home/${username}
 
