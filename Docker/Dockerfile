@@ -86,6 +86,12 @@ RUN mkdir -p /var/tmp && cd /var/tmp && git clone --depth=1 https://github.com/f
     cd bindings/python && \
     python3 setup.py install && \
     rm -rf /var/tmp/flashlight
+    RUN groupadd --gid ${g_id} ${username}
+
+RUN useradd --uid ${u_id} --gid ${g_id} --shell /bin/bash --create-home ${username}
+USER ${username}
+RUN chown -R ${u_id}:${g_id} /home/${username}
+RUN chmod -R  755 /home/${username}
 
 RUN cd /home/${username} && \
     git clone --depth=1 https://github.com/pytorch/fairseq.git && \
@@ -93,12 +99,6 @@ RUN cd /home/${username} && \
     pip3 install --editable ./ --no-cache-dir
 
 RUN rm -rf /workspace
-
-RUN groupadd --gid ${g_id} ${username}
-RUN useradd --uid ${u_id} --gid ${g_id} --shell /bin/bash --create-home ${username}
-USER ${username}
-RUN chown -R ${u_id}:${g_id} /home/${username}
-RUN chmod -R  755 /home/${username}
 
 WORKDIR /home/${username}
 
