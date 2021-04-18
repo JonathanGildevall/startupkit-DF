@@ -94,7 +94,7 @@ RUN chmod -R  755 /home/${username}
 RUN cd /home/${username} && \
     git clone --depth=1 https://github.com/pytorch/fairseq.git && \
     cd fairseq && \
-    pip3 install --editable ./ --no-cache-dir
+    pip3 install --editable ./
 
 RUN rm -rf /workspace
 
