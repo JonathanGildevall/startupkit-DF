@@ -20,9 +20,9 @@ RUN set -x && \
         ca-certificates \
         curl \
         software-properties-common \
-        libopencv-dev \ 
+        libopencv-dev \
         python3-dev \
-        python3-pip \ 
+        python3-pip \
         python3-setuptools \
         cmake \
         swig \
@@ -45,12 +45,20 @@ RUN set -x && \
         zlib1g-dev
 
 RUN pip3 uninstall numpy -y
- 
+
 COPY misc/requirements.txt /tmp/
 RUN pip3 install pip --upgrade
 RUN pip3 install --no-cache-dir -r /tmp/requirements.txt
 RUN apt-get clean \
     && rm -rf /var/lib/apt/lists/*
+
+RUN groupadd --gid ${g_id} ${username}
+RUN useradd --uid ${u_id} --gid ${g_id} --shell /bin/bash --create-home ${username}
+USER ${username}
+RUN chown -R ${u_id}:${g_id} /home/${username}
+RUN chmod -R  755 /home/${username}
+
+USER root
 
 # CMake version 3.18.3
 RUN mkdir -p /var/tmp && wget -q -nc --no-check-certificate -P /var/tmp https://cmake.org/files/v3.18/cmake-3.18.3-Linux-x86_64.sh && \
@@ -84,12 +92,6 @@ RUN mkdir -p /var/tmp && cd /var/tmp && git clone --depth=1 https://github.com/f
     cd bindings/python && \
     python3 setup.py install && \
     rm -rf /var/tmp/flashlight
-    RUN groupadd --gid ${g_id} ${username}
-
-RUN useradd --uid ${u_id} --gid ${g_id} --shell /bin/bash --create-home ${username}
-USER ${username}
-RUN chown -R ${u_id}:${g_id} /home/${username}
-RUN chmod -R  755 /home/${username}
 
 RUN cd /home/${username} && \
     git clone --depth=1 https://github.com/pytorch/fairseq.git && \
@@ -100,6 +102,7 @@ RUN rm -rf /workspace
 
 WORKDIR /home/${username}
 
+USER ${username}
 
 
 # publish port
