@@ -1,10 +1,3 @@
-opencv-python
-opencv-contrib-python
-numba
-setuptools==41.0.0
+soundfile
+wandb
 numpy
-pandas
-scikit-learn
-scipy==1.4.1
-keras==2.1.4
-
