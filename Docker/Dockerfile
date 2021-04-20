@@ -87,9 +87,8 @@ RUN cd /opt && \
 ENV KENLM_ROOT=/opt/kenlm
 
 # https://github.com/facebookresearch/flashlight.git
-RUN cd /home/${username} && git clone --depth=1 https://github.com/facebookresearch/flashlight.git flashlight && cd - && \
-    cd flashlight && \
-    cd bindings/python && \
+RUN cd /home/${username} && git clone --depth=1 https://github.com/facebookresearch/flashlight.git flashlight \
+    cd flashlight/bindings/python && \
     python3 setup.py install
 
 RUN cd /home/${username} && \
