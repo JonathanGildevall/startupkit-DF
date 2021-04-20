@@ -4,7 +4,7 @@ common:
   fp16: true
   log_format: json
   log_interval: 20
-  wandb_project: "w2v2fine"
+  wandb_project: "w2v2fine_sv"
 
 checkpoint:
   save_interval: 1000
@@ -12,8 +12,7 @@ checkpoint:
   keep_interval_updates: 1
   no_epoch_checkpoints: true
   best_checkpoint_metric: wer
-  save_dir: "/home/$username/data/checkpoints"
-
+  save_dir: "/home/jonathan.gildevall/data/sv_save_dir"
 task:
   _name: audio_pretraining
   data: ???

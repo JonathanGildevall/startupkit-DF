@@ -26,7 +26,9 @@ nvidia-docker  run   \
 	--volume="$(pwd)/.passwd.$$:/etc/passwd:ro" \
 	-v $DATA_DIR:/home/$username/data \
 	-v $CODE_DIR:/home/$username/src \
-	-it custom_docker_image
+	--shm-size=5gb \
+	-it \
+	-d custom_docker_image
 
 rm .passwd.$$
 rm .group.$$

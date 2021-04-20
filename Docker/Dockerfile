@@ -102,6 +102,9 @@ RUN rm -rf /workspace
 
 WORKDIR /home/${username}
 
+RUN chown -R ${u_id}:${g_id} /home/${username}/fairseq
+RUN chmod -R  755 /home/${username}/fairseq
+
 USER ${username}
 
 
