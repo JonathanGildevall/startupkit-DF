@@ -18,7 +18,7 @@ grep "^${username}:" /etc/passwd > .passwd.$$
 grep "^${username}:" /etc/group > .group.$$
 
 nvidia-docker  run   \
-	--name eval \
+	--name wav2vec \
 	-e CUDA_VISIBLE_DEVICES=1 \
         -e CUDA_DEVICE_ORDER=PCI_BUS_ID \
 	--user $UID:$GID \
@@ -27,7 +27,8 @@ nvidia-docker  run   \
 	-v $DATA_DIR:/home/$username/data \
 	-v $CODE_DIR:/home/$username/src \
 	--shm-size=5gb \
-	-it custom_docker_image
+	-it \
+	-d custom_docker_image
 
 rm .passwd.$$
 rm .group.$$

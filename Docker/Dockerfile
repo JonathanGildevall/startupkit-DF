@@ -87,11 +87,10 @@ RUN cd /opt && \
 ENV KENLM_ROOT=/opt/kenlm
 
 # https://github.com/facebookresearch/flashlight.git
-RUN mkdir -p /var/tmp && cd /var/tmp && git clone --depth=1 https://github.com/facebookresearch/flashlight.git flashlight && cd - && \
-    cd /var/tmp/flashlight && \
+RUN cd /home/${username} && git clone --depth=1 https://github.com/facebookresearch/flashlight.git flashlight && cd - && \
+    cd flashlight && \
     cd bindings/python && \
-    python3 setup.py install && \
-    rm -rf /var/tmp/flashlight
+    python3 setup.py install
 
 RUN cd /home/${username} && \
     git clone --depth=1 https://github.com/pytorch/fairseq.git && \
@@ -104,6 +103,8 @@ WORKDIR /home/${username}
 
 RUN chown -R ${u_id}:${g_id} /home/${username}/fairseq
 RUN chmod -R  755 /home/${username}/fairseq
+RUN chown -R ${u_id}:${g_id} /home/${username}/flashlight
+RUN chmod -R  755 /home/${username}/flashlight
 
 USER ${username}
 
